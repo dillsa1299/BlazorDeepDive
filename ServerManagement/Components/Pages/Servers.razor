@@ -1,8 +1,12 @@
 ﻿@page "/servers"
 
+@inject NavigationManager NavigationManager
+
 <h3>Servers</h3>
 <br/>
-
+<a href="/servers/add" class="btn btn-primary">Add Server</a>
+<br/>
+<br/>
 <div class="container-fluid text-center">
     <div class="row w-50">
         @foreach (string city in cities)
@@ -16,7 +20,7 @@
                     </div>
                 </div>
 
-                
+
                 <text>&nbsp;</text>
             </div>
         }
@@ -35,6 +39,13 @@
             </span>
             &nbsp;
             <a href="/servers/@server.Id" class="btn btn-link">Edit</a>
+            &nbsp;
+            <EditForm
+                Model="server"
+                FormName="@($"form-server-{server.Id}")"
+                    OnValidSubmit="@(()=> { DeleteServer(server.Id); })">
+                    <button type="submit" class="btn btn-primary">Delete</button>
+            </EditForm>
         </li>
     }
 </ul>
@@ -43,4 +54,12 @@
     private List<Server> servers = ServersRepository.GetServersByCity("Toronto");
     private List<string> cities = CitiesRepository.GetCities();
 
+    private void DeleteServer(int serverId)
+    {
+        if (serverId > 0)
+        {
+            ServersRepository.DeleteServer(serverId);
+            NavigationManager.Refresh();
+        }
+    }
 }

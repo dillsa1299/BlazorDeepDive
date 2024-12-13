@@ -1,4 +1,6 @@
-﻿@page "/servers/{id:int?}"
+﻿@page "/servers/{id:int}"
+
+@inject NavigationManager NavigationManager
 
 <h3>Edit Server</h3>
 <br/>
@@ -43,7 +45,7 @@
         </div>
         <br/>
         <div>
-            <button class="btn btn-primary" type="submit" href="/servers">Update</button>
+            <button class="btn btn-primary" type="submit">Update</button>
             &nbsp;
             <a href="/servers" class="btn btn-primary">Close</a>
         </div>
@@ -68,5 +70,7 @@
         {
             ServersRepository.UpdateServer(server.Id, server);
         }
+
+        NavigationManager.NavigateTo("/servers");
     }
 }

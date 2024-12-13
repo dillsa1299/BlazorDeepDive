@@ -11,6 +11,7 @@ namespace ServerManagement.Models
             IsOnline = randomNumber == 0 ? false : true;
         }
 
+        [Required]
         public int Id { get; set; }
         public bool IsOnline { get; set; }
         [Required]
