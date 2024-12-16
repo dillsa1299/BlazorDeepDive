@@ -1,5 +1,5 @@
 ﻿@page "/servers"
-
+@rendermode InteractiveServer
 @inject NavigationManager NavigationManager
 
 <h3>Servers</h3>
@@ -12,19 +12,26 @@
         @foreach (string city in cities)
         {
             <div class="col">
-
-                <div class="card";">
+                <div class="card @(selectedCity.Equals(city, StringComparison.OrdinalIgnoreCase)?"border-primary":"")">
                     <img src="@($"/images/{city}.png")" class="card-img-top" alt="...">
                     <div class="card-body">
-                        <button type="button" class="btn btn-primary">@city</button>
+                        <button type="button" class="btn btn-primary" @onclick="@(() => { SelectCity(city); })">@city</button>
                     </div>
                 </div>
-
 
                 <text>&nbsp;</text>
             </div>
         }
     </div>
+</div>
+
+<br/>
+
+<div class="input-group mb-3">
+    <input type="text" class="form-control" placeholder="Search Servers" 
+        @bind-value="serverFilter"
+        @bind-value:event="oninput"/>
+    <button class="btn btn-outline-secondary" type="button" id="button-search" @onclick="HandleSearch">Search</button>
 </div>
 
 <br/>
@@ -41,10 +48,10 @@
             <a href="/servers/@server.Id" class="btn btn-link">Edit</a>
             &nbsp;
             <EditForm
-                Model="server"
-                FormName="@($"form-server-{server.Id}")"
-                    OnValidSubmit="@(()=> { DeleteServer(server.Id); })">
-                    <button type="submit" class="btn btn-primary">Delete</button>
+            Model="server"
+            FormName="@($"form-server-{server.Id}")"
+            OnValidSubmit="@(()=> { DeleteServer(server.Id); })">
+                <button type="submit" class="btn btn-primary">Delete</button>
             </EditForm>
         </li>
     }
@@ -52,7 +59,21 @@
 
 @code {
     private List<Server> servers = ServersRepository.GetServersByCity("Toronto");
+
     private List<string> cities = CitiesRepository.GetCities();
+
+    private string selectedCity = "Toronto";
+
+    private string _serverFilter = "";
+    private string serverFilter { get => _serverFilter;
+        set
+        {
+            // Can validate here
+            _serverFilter = value;
+            this.servers = ServersRepository.SearchServers(_serverFilter);
+            this.selectedCity = string.Empty;
+        }
+    }
 
     private void DeleteServer(int serverId)
     {
@@ -61,5 +82,18 @@
             ServersRepository.DeleteServer(serverId);
             NavigationManager.Refresh();
         }
+    }
+
+    private void SelectCity(string cityName)
+    {
+        this.selectedCity = cityName;
+        this.servers = ServersRepository.GetServersByCity(this.selectedCity);
+    }
+
+    private void HandleSearch()
+    {
+        this.servers = ServersRepository.SearchServers(serverFilter);
+
+        this.selectedCity = string.Empty;
     }
 }
